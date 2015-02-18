@@ -1,4 +1,4 @@
-# Elo
+# Elo4MultiPlayerGames
 
 From {Wikipedia}[http://en.wikipedia.org/wiki/Elo_rating_system]:
 
