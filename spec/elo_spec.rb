@@ -1,150 +1,67 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Elo" do
-
   after do
     Elo.instance_eval { @config = nil }
   end
 
-  it "should work as advertised" do
-
-    bob  = Elo::Player.new
-    jane = Elo::Player.new(:rating => 1500)
-
-    game1 = bob.wins_from(jane)
-    game2 = bob.loses_from(jane)
-    game3 = bob.plays_draw(jane)
-
-    game4 = bob.versus(jane)
-    game4.winner = jane
-
-    game5 = bob.versus(jane)
-    game5.loser = jane
-
-    game6 = bob.versus(jane)
-    game6.draw
-
-    game7 = bob.versus(jane)
-    game7.result = 1
-
-    game8 = bob.versus(jane, :result => 0)
-
-    bob.rating.should == 1080
-    jane.rating.should == 1412
-    bob.should_not be_pro
-    bob.should be_starter
-    bob.games_played.should == 8
-    bob.games.should == [ game1, game2, game3, game4, game5, game6, game7, game8 ]
-
-    Elo::Player.all.should == [ bob, jane ]
-    Elo::Game.all.should == [ game1, game2, game3, game4, game5, game6, game7, game8 ]
-
-  end
-
-  describe "Configuration" do
-
-    it "default_rating" do
-      Elo.config.default_rating.should == 1000
-      Elo::Player.new.rating.should    == 1000
-
-      Elo.config.default_rating = 1337
-
-      Elo.config.default_rating.should == 1337
-      Elo::Player.new.rating.should    == 1337
+  describe 'for multi player' do
+    let(:game) do
+      game = [
+        {user: 'alice', result: 0, rating: 1609},
+        {user: 'alice', result: 0.5, rating: 1477},
+        {user: 'alice', result: 1, rating: 1388},
+        {user: 'alice', result: 1, rating: 1586},
+        {user: 'alice', result: 0, rating: 1720},
+      ]
     end
-
-    it "starter_boundry" do
-      Elo.config.starter_boundry.should == 30
-      Elo::Player.new(:games_played => 20).should be_starter
-
-      Elo.config.starter_boundry = 15
-
-      Elo.config.starter_boundry.should == 15
-      Elo::Player.new(:games_played => 20).should_not be_starter
-    end
-
-    it "default_k_factor and FIDE settings" do
-      Elo.config.use_FIDE_settings.should    == true
-      Elo.config.default_k_factor.should     == 15
-
-      Elo.config.default_k_factor = 20
-      Elo.config.use_FIDE_settings = false
-
-      Elo.config.default_k_factor.should     == 20
-      Elo.config.use_FIDE_settings.should    == false
-      Elo::Player.new.k_factor.should == 20
-    end
-
-    it "pro_rating_boundry" do
-      Elo.config.pro_rating_boundry.should == 2400
-
-      Elo.config.pro_rating_boundry = 1337
-
-      Elo.config.pro_rating_boundry.should == 1337
-      Elo::Player.new(:rating => 1337).should be_pro_rating
-    end
-
-  end
-
-  describe "according to FIDE" do
-
-    it "starter" do
-      player = Elo::Player.new
-      player.k_factor.should == 25
-      player.should be_starter
-      player.should_not be_pro
-      player.should_not be_pro_rating
-    end
-
-    it "normal" do
-      player = Elo::Player.new(:rating => 2399, :games_played => 30)
-      player.k_factor.should == 15
-      player.should_not be_starter
-      player.should_not be_pro
-      player.should_not be_pro_rating
-    end
-
-    it "pro rating" do
-      player = Elo::Player.new(:rating => 2400)
-      player.k_factor.should == 10
-      player.should be_starter
-      player.should be_pro_rating
-      player.should_not be_pro
-    end
-
-    it "historically a pro" do
-      player = Elo::Player.new(:rating => 2399, :pro => true)
-      player.k_factor.should == 10
-      player.should be_starter
-      player.should_not be_pro_rating
-      player.should be_pro
-    end
-  end
-
-  describe "examples for calculating rating correctly" do
-
-    # examples from http://chesselo.com/
+    let(:my_rating) { 1613 }
+    let(:k_factor) { 32 }
 
     before do
-      @a = Elo::Player.new(:rating => 2000, :k_factor => 10)
-      @b = Elo::Player.new(:rating => 1900, :k_factor => 10)
+      # test  = Elo::Player.new(rating: 1500)
+      # test.add_game_results(r)
     end
 
-    it "winning" do
-      @a.wins_from(@b)
-      @a.rating.should == 2003
-    end
+    describe 'kochi-way' do
+      it do
+        # ---------------------------
+        #  kochi way
+        # ---------------------------
 
-    it "losing" do
-      @a.loses_from(@b)
-      @a.rating.should == 1993
-    end
+        res_kochi = game.inject(0.0) do |r, c|
+          e = Elo::Rating.new(
+            result: c[:result],
+            old_rating: my_rating,
+            other_rating: c[:rating],
+            k_factor: k_factor
+          ).new_rating
+          r += e
+        end / game.size
 
-    it "draw" do
-      @a.plays_draw(@b)
-      @a.rating.should == 1998
+        expect(res_kochi).to eq(1610)
+      end
     end
+    describe 'wikipedia-way' do
+      it do
+        # ---------------------------
+        #  wikipedia way
+        # ---------------------------
 
+        result_sum = game.inject(0.0) {|r, c| r += c[:result]}
+        expected_sum = game.inject(0.0) do |r, c|
+          e = Elo::Rating.new(:old_rating => my_rating, :other_rating  => c[:rating]).expected_al
+          r += e
+        end
+        res_wiki = Elo::Rating.new(
+          result: result_sum,
+          old_rating: my_rating,
+          expected: expected_sum,
+          k_factor: k_factor
+        ).new_rating
+
+        expect(res_wiki).to eq(1601)
+      end
+    end
   end
-
 end
