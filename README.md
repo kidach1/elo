@@ -1,4 +1,4 @@
-= Elo
+# Elo
 
 From {Wikipedia}[http://en.wikipedia.org/wiki/Elo_rating_system]:
 
@@ -9,11 +9,11 @@ Arpad Elo, a Hungarian-born American physics professor.
 But Elo was designed for two player games.
 This is for multi player games.
 
-== Usage
+## Usage
 
 WIP
 
-== About the K-factor
+## About the K-factor
 
 The Elo rating system knows a variable called the "K-factor". The K-factor is used
 to reward new talent and stableize the rating once a player is participating longer.
@@ -37,11 +37,11 @@ games, and 16 for everybody else.
     config.use_FIDE_settings = false
   end
 
-== Installation
+## Installation
 
 WIP
 
-== Note on Patches/Pull Requests
+## Note on Patches/Pull Requests
  
 * Fork the project.
 * Make your feature addition or bug fix.
