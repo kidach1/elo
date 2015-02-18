@@ -7,7 +7,7 @@ describe "Elo" do
 
   describe 'for multi player' do
     let(:game) do
-      game = [
+      [
         {user: 'alice', result: 0, rating: 1609},
         {user: 'alice', result: 0.5, rating: 1477},
         {user: 'alice', result: 1, rating: 1388},
