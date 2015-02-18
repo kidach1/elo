@@ -1,6 +1,6 @@
 # Elo4MultiPlayerGames
 
-From {Wikipedia}[http://en.wikipedia.org/wiki/Elo_rating_system]:
+From [Wikipedia](http://en.wikipedia.org/wiki/Elo_rating_system):
 
 The Elo rating system is a method for calculating the relative skill levels of
 players in two-player games such as chess and Go. It is named after its creator
