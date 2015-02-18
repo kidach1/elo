@@ -50,7 +50,7 @@ describe "Elo" do
 
         result_sum = game.inject(0.0) {|r, c| r += c[:result]}
         expected_sum = game.inject(0.0) do |r, c|
-          e = Elo::Rating.new(:old_rating => my_rating, :other_rating  => c[:rating]).expected_al
+          e = Elo::Rating.new(old_rating: my_rating, other_rating: c[:rating]).expected_al
           r += e
         end
         res_wiki = Elo::Rating.new(
