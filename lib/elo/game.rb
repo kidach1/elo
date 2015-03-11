@@ -16,6 +16,17 @@ module Elo
       end
     end
 
+    def wiki
+      Rating.new(
+        result: player_score_sum,
+        old_rating: player.rating,
+        expected: expected_sum,
+        k_factor: K_FACTOR
+      ).new_rating
+    end
+
+    private
+
     def define_attr_competitor
       self.match_num.times.with_index(1) do |_, i|
         self.class.send :define_method, "competitor#{i}=" do |value|
@@ -28,32 +39,21 @@ module Elo
       c_scores = match_num.times.with_index(1).map do |_, i|
         instance_variable_get("@competitor#{i}").result_against_player
       end
-      c_scores.inject(0.0) {|r, s| r += s}
+      c_scores.inject(0.0) {|sum, score| sum += score}
     end
 
     def player_score_sum
       match_num.to_f - competitors_score_sum
     end
 
-    class << self
-      def result_sum
-        inject(0.0) {|r, player| r += player.result}
+    def expected_sum
+      p_rating = player.rating
+      c_raitngs = match_num.times.with_index(1).map do |_, i|
+        instance_variable_get("@competitor#{i}").rating
       end
-
-      def expected_sum
-        inject(0.0) do |r, player|
-          e = Rating.new(old_rating: my_rating, other_rating: player[:rating]).expected_al
-          r += e
-        end
-      end
-
-      def wiki
-        Rating.new(
-          result: result_sum,
-          old_rating: my_rating,
-          expected: expected_sum,
-          k_factor: K_FACTOR
-        ).new_rating
+      c_raitngs.inject(0.0) do |sum, c_rating|
+        e = Rating.new(old_rating: p_rating, other_rating: c_rating).expected_al
+        sum += e
       end
     end
   end

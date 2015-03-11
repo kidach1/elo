@@ -79,21 +79,7 @@ describe "Elo" do
           Elo::Competitor.new(1586, 0),
           Elo::Competitor.new(1720, 1)
         )
-
-
-        # result_sum = game.inject(0.0) {|r, c| r += c[:result]}
-        # expected_sum = game.inject(0.0) do |r, c|
-        #   e = Elo::Rating.new(old_rating: my_rating, other_rating: c[:rating]).expected_al
-        #   r += e
-        # end
-        # res_wiki = Elo::Rating.new(
-        #   result: result_sum,
-        #   old_rating: my_rating,
-        #   expected: expected_sum,
-        #   k_factor: k_factor
-        # ).new_rating
-
-        expect(game.competitors_score_sum).to eq(2.5)
+        expect(game.wiki).to eq(1601)
       end
     end
   end
