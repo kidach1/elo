@@ -1,4 +1,5 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+# require File.expand_path(File.dirname(__FILE__) + '../../lib/elo/competitor.rb')
 
 describe "Elo" do
   after do
@@ -61,6 +62,38 @@ describe "Elo" do
         ).new_rating
 
         expect(res_wiki).to eq(1601)
+      end
+    end
+
+    describe 'wikipedia-way' do
+      it do
+        # ---------------------------
+        #  wikipedia way
+        # ---------------------------
+
+        game = Elo::Game.new(
+          Elo::Player.new(1613),
+          Elo::Competitor.new(1609, 1),
+          Elo::Competitor.new(1477, 0.5),
+          Elo::Competitor.new(1388, 0),
+          Elo::Competitor.new(1586, 0),
+          Elo::Competitor.new(1720, 1)
+        )
+
+
+        # result_sum = game.inject(0.0) {|r, c| r += c[:result]}
+        # expected_sum = game.inject(0.0) do |r, c|
+        #   e = Elo::Rating.new(old_rating: my_rating, other_rating: c[:rating]).expected_al
+        #   r += e
+        # end
+        # res_wiki = Elo::Rating.new(
+        #   result: result_sum,
+        #   old_rating: my_rating,
+        #   expected: expected_sum,
+        #   k_factor: k_factor
+        # ).new_rating
+
+        expect(game.competitors_score_sum).to eq(2.5)
       end
     end
   end

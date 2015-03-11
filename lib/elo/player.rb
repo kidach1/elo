@@ -1,6 +1,10 @@
 module Elo
-  # A player. You need at least two play a Game.
   class Player
     include Helper
+    attr_accessor :rating
+
+    def initialize(rating)
+      self.rating = rating
+    end
   end
 end
