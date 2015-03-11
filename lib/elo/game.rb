@@ -7,11 +7,11 @@ module Elo
     attr_accessor :match_num
     K_FACTOR = 32
 
-    def initialize(player, *args)
+    def initialize(player, competitors)
       self.player = player
-      self.match_num = args.length
+      self.match_num = competitors.length
       define_attr_competitor
-      args.each.with_index(1) do |player, i|
+      competitors.each.with_index(1) do |player, i|
         send("competitor#{i}=", player)
       end
     end

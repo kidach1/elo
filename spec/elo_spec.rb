@@ -21,15 +21,17 @@ http://en.wikipedia.org/wiki/Elo_rating_system#Mathematical_details
 
 =end
   describe 'wikipedia-way' do
+    let(:player) { Elo::Player.new(1613) }
+    let(:competitors) do [
+      Elo::Competitor.new(1609, 1),
+      Elo::Competitor.new(1477, 0.5),
+      Elo::Competitor.new(1388, 0),
+      Elo::Competitor.new(1586, 0),
+      Elo::Competitor.new(1720, 1) ]
+    end
+
     it do
-      game = Elo::Game.new(
-        Elo::Player.new(1613),
-        Elo::Competitor.new(1609, 1),
-        Elo::Competitor.new(1477, 0.5),
-        Elo::Competitor.new(1388, 0),
-        Elo::Competitor.new(1586, 0),
-        Elo::Competitor.new(1720, 1)
-      )
+      game = Elo::Game.new(player, competitors)
       expect(game.run).to eq(1601)
     end
   end
