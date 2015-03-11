@@ -16,7 +16,7 @@ module Elo
       end
     end
 
-    def wiki
+    def run
       Rating.new(
         result: player_score_sum,
         old_rating: player.rating,
