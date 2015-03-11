@@ -6,6 +6,24 @@ describe "Elo" do
     Elo.instance_eval { @config = nil }
   end
 
+  describe 'wikipedia-way' do
+    it do
+      # ---------------------------
+      #  wikipedia way
+      # ---------------------------
+
+      game = Elo::Game.new(
+        Elo::Player.new(1613),
+        Elo::Competitor.new(1609, 1),
+        Elo::Competitor.new(1477, 0.5),
+        Elo::Competitor.new(1388, 0),
+        Elo::Competitor.new(1586, 0),
+        Elo::Competitor.new(1720, 1)
+      )
+      expect(game.wiki).to eq(1601)
+    end
+  end
+
   describe 'for multi player' do
     let(:game) do
       [
@@ -62,24 +80,6 @@ describe "Elo" do
         ).new_rating
 
         expect(res_wiki).to eq(1601)
-      end
-    end
-
-    describe 'wikipedia-way' do
-      it do
-        # ---------------------------
-        #  wikipedia way
-        # ---------------------------
-
-        game = Elo::Game.new(
-          Elo::Player.new(1613),
-          Elo::Competitor.new(1609, 1),
-          Elo::Competitor.new(1477, 0.5),
-          Elo::Competitor.new(1388, 0),
-          Elo::Competitor.new(1586, 0),
-          Elo::Competitor.new(1720, 1)
-        )
-        expect(game.wiki).to eq(1601)
       end
     end
   end
