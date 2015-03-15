@@ -3,58 +3,69 @@ module Elo
     # http://en.wikipedia.org/wiki/Elo_rating_system#Mathematical_details
 
     include Helper
-    attr_accessor :player
-    attr_accessor :match_num
+    attr_accessor :player_cnt
     K_FACTOR = 32
 
-    def initialize(player, competitors)
-      self.player = player
-      self.match_num = competitors.length
-      define_attr_competitor
-      competitors.each.with_index(1) do |player, i|
-        send("competitor#{i}=", player)
+    def initialize(players)
+      self.player_cnt = players.length
+      define_attr_player
+      players.each.with_index(1) do |player, i|
+        send("player#{i}=", player)
       end
     end
 
     def run
-      Rating.new(
-        result: player_score_sum,
-        old_rating: player.rating,
-        expected: expected_sum,
-        k_factor: K_FACTOR
-      ).new_rating
+      self.player_cnt.times.map.with_index(1) do |_, i|
+        Rating.new(
+          result: score_sum(i),
+          old_rating: instance_variable_get("@player#{i}").rating,
+          expected: expected_sum(i),
+          k_factor: K_FACTOR
+        ).new_rating
+      end
     end
 
     private
 
-    def define_attr_competitor
-      self.match_num.times.with_index(1) do |_, i|
-        self.class.send :define_method, "competitor#{i}=" do |value|
-          instance_variable_set("@competitor#{i}", value)
+    def define_attr_player
+      self.player_cnt.times.with_index(1) do |_, i|
+        self.class.send :define_method, "player#{i}=" do |value|
+          instance_variable_set("@player#{i}", value)
         end
       end
     end
 
-    def competitors_score_sum
-      c_scores = match_num.times.with_index(1).map do |_, i|
-        instance_variable_get("@competitor#{i}").result_against_player
+    def score_sum(player_number)
+      my_rank = instance_variable_get("@player#{player_number}").rank
+      score = 0
+      self.player_cnt.times.with_index(1) do |_, i|
+        next if i == player_number
+        score += rank2score(my_rank, instance_variable_get("@player#{i}").rank)
       end
-      c_scores.inject(0.0) {|sum, score| sum += score}
+      score
     end
 
-    def player_score_sum
-      match_num.to_f - competitors_score_sum
+    def rank2score(my_rank, other_rank)
+      if my_rank > other_rank
+        1
+      elsif my_rank < other_rank
+        0
+      else
+        0.5
+      end
     end
 
-    def expected_sum
-      p_rating = player.rating
-      c_raitngs = match_num.times.with_index(1).map do |_, i|
-        instance_variable_get("@competitor#{i}").rating
+    def expected_sum(player_number)
+      my_rating = instance_variable_get("@player#{player_number}").rating
+      es = 0
+      self.player_cnt.times.with_index(1) do |_, i|
+        next if i == player_number
+        es += Rating.new(
+          old_rating: my_rating,
+          other_rating: instance_variable_get("@player#{i}").rating
+        ).expected_al.round(3)
       end
-      c_raitngs.inject(0.0) do |sum, c_rating|
-        e = Rating.new(old_rating: p_rating, other_rating: c_rating).expected_al
-        sum += e
-      end
+      es
     end
   end
 end
