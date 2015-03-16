@@ -36,19 +36,19 @@ module Elo
     end
 
     def score_sum(player_number)
-      my_rank = instance_variable_get("@player#{player_number}").rank
+      my_ranking = instance_variable_get("@player#{player_number}").ranking
       score = 0
       self.player_cnt.times.with_index(1) do |_, i|
         next if i == player_number
-        score += rank2score(my_rank, instance_variable_get("@player#{i}").rank)
+        score += ranking2score(my_ranking, instance_variable_get("@player#{i}").ranking)
       end
       score
     end
 
-    def rank2score(my_rank, other_rank)
-      if my_rank > other_rank
+    def ranking2score(my_ranking, other_ranking)
+      if my_ranking < other_ranking
         1
-      elsif my_rank < other_rank
+      elsif my_ranking > other_ranking
         0
       else
         0.5

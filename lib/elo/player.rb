@@ -2,11 +2,11 @@ module Elo
   class Player
     include Helper
     attr_accessor :rating
-    attr_accessor :rank
+    attr_accessor :ranking
 
-    def initialize(rating, rank)
+    def initialize(rating, ranking)
       self.rating = rating
-      self.rank = rank
+      self.ranking = ranking
     end
   end
 end

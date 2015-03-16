@@ -36,7 +36,6 @@ http://en.wikipedia.org/wiki/Elo_rating_system#Mathematical_details
     end
   end
 
-
   # describe 'for multi player' do
   #   let(:game) do
   #     [
